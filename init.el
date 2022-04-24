@@ -18,7 +18,7 @@
 ;; Make ESC quit prompts
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
 
-(set-face-attribute 'default nil :font "Iosevka term" :height 135)
+(set-face-attribute 'default nil :font "Iosevka term" :height 120)
 
 ;; (load-theme 'wombat)
 (load-theme 'doom-tokyo-night t)
@@ -112,6 +112,7 @@
   :init
   (ivy-rich-mode 1))
 
+;; set up space keycommands via this:
 (use-package general
   :config
   (general-create-definer rune/leader-keys
@@ -121,10 +122,13 @@
   (rune/leader-keys
    "t"  '(:ignore t :which-key "toggles")
    "tt" '(counsel-load-theme :which-key "choose theme:")
-   "p" '(projectile-command-map :which-key "Projectile:"))
+   "p" '(projectile-command-map :which-key "Projectile:")
+   "s" '(save-buffer :which-key "Saves the file")
+   "w" '(evil-window-map :which-key "Window Settings")
+   "g" '(magit-status :which-key "Git")))
 
 
-(Defun rune/evil-hook ()
+(defun rune/evil-hook ()
   (dolist (mode '(custom-mode
 		  eshell-mode
 		  git-rebase-mode
@@ -144,7 +148,7 @@
   :config
   (evil-mode 1)
   (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
-  ;; (define-key evil-insert-state-map (Kbd "C-h") 'evil-delete-backward-char-and-join) 
+  ;; (define-key evil-insert-state-map (Kbd "C-h") 'evil-delete-backward-char-and-join
 
   ;; Use visual line motions enven outside of visual-line-mode buffers
   (evil-global-set-key 'motion "j" 'evil-next-visual-line)
@@ -184,23 +188,76 @@
 
 (use-package magit
   :custom
-  ;; (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
+  (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
 
 (use-package evil-collection
-  :after magit
+  :after magit)
 
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(custom-safe-themes
-   '("353ffc8e6b53a91ac87b7e86bebc6796877a0b76ddfc15793e4d7880976132ae" "d268b67e0935b9ebc427cad88ded41e875abfcc27abd409726a92e55459e0d01" "c4063322b5011829f7fdd7509979b5823e8eea2abf1fe5572ec4b7af1dd78519" default))
- '(package-selected-packages
-   '(counsel-projectile projectile hydra evil-collection evil general doom-themes helpful ivy-rich which-key rainbow-delimiters doom-modelineus doom-modeline use-package counsel command-log-mode)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
+;; managing git issues and PRs out of emacs
+(use-package forge)
+
+(use-package lsp-mode
+  :ensure t
+  :hook  ((c-mode . lsp)
+	  (c++-mode . lsp)
+	  (lsp-mode . lsp-enable-which-key-integration))
+  :commands lsp
+  :config
+  (setq lsp-keymap-prefix "C-c l")
+  (define-key lsp-mode-map (kbd "C-c l") lsp-command-map)
+  (setq lsp-file-watch-threshold 15000))
+
+(use-package lsp-ui
+  :ensure t
+  :commands (lsp-ui-mode)
+  :config
+  (setq lsp-ui-doc-enable nil)
+  (setq lsp-ui-doc-delay 0.5)
+  (define-key lsp-ui-mode-map [remap xref-find-definitions] #'lsp-ui-peek-find-definitions)
+  (define-key lsp-ui-mode-map [remap xref-find-references] #'lsp-ui-peek-find-references)
+  )
+
+(use-package lsp-ivy
+  :ensure t
+  :commands lsp-ivy-workspace-symbol)
+
+(use-package lsp-treemacs
+  :ensure t
+  :commands lsp-treemacs-errors-list)
+
+;; company
+(use-package company
+  :ensure t
+  :bind ("M-/" . company-complete-common-or-cycle) ;; overwritten by flyspell
+  :init (add-hook 'after-init-hook 'global-company-mode)
+  :config
+  (setq company-show-quick-access            t
+	company-minimum-prefix-length   1
+	company-idle-delay              0.5
+	company-backends
+	'((company-files          ; files & directory
+	   company-keywords       ; keywords
+	   company-capf           ; what is this?
+	   company-yasnippet)
+	  (company-abbrev company-dabbrev))))
+
+(use-package company-box
+  :ensure t
+  :after company
+  :hook (company-mode . company-box-mode))
+
+;; flycheck
+(use-package flycheck
+  :ensure t
+  :init (global-flycheck-mode)
+  :config
+  (setq flycheck-display-errors-function
+	#'flycheck-display-error-messages-unless-error-list)
+
+  (setq flycheck-indication-mode nil))
+
+(use-package flycheck-pos-tip
+  :ensure t
+  :after flycheck
+  :config
+  (flycheck-pos-tip-mode))
