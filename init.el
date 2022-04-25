@@ -12,6 +12,21 @@
 ;; C-h v - see docs for a variable
 ;; diminish - cleans out stuff for the modeline
 
+;; creates bracket pairs
+(electric-pair-mode)
+
+;; Put autosave files (ie #foo#) and backup files (ie foo~) in ~/.emacs.d/.
+(custom-set-variables
+  '(auto-save-file-name-transforms '((".*" "~/.emacs.d/autosaves/\\1" t)))
+  '(backup-directory-alist '((".*" . "~/.emacs.d/backups/"))))
+
+;; create the autosave dir if necessary, since emacs won't.
+(make-directory "~/.emacs.d/autosaves/" t)
+
+;; set background colour opacity
+ (set-frame-parameter (selected-frame) 'alpha '(85 . 80))
+ (add-to-list 'default-frame-alist '(alpha . (85 . 80)))
+
 ;; Set up visible bell
 (setq visible-bell t)
 
@@ -105,7 +120,7 @@
   :init (which-key-mode)
   :diminish which-key-mode
   :config
-  (setq which-key-idle-delay 0.5))
+  (setq which-key-idle-delay 0.1))
 
 ;; Gives documentation in i.e. M-x
 (use-package ivy-rich
@@ -125,8 +140,11 @@
    "p" '(projectile-command-map :which-key "Projectile:")
    "s" '(save-buffer :which-key "Saves the file")
    "w" '(evil-window-map :which-key "Window Settings")
-   "g" '(magit-status :which-key "Git")))
-
+   "g" '(magit-status :which-key "Git")
+   "." '(counsel-find-file :which-key "file browser")
+   "," '(treemacs :which-key "open treemacs")
+   "f" '(:ignore t :which-key "file stuff")
+   "fp" '(lambda () (interactive)(find-file "~/.emacs.d/init.el") :which-key "open emacs config")))
 
 (defun rune/evil-hook ()
   (dolist (mode '(custom-mode
@@ -149,7 +167,6 @@
   (evil-mode 1)
   (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
   ;; (define-key evil-insert-state-map (Kbd "C-h") 'evil-delete-backward-char-and-join
-
   ;; Use visual line motions enven outside of visual-line-mode buffers
   (evil-global-set-key 'motion "j" 'evil-next-visual-line)
   (evil-global-set-key 'motion "k" 'evil-previous-visual-line)
@@ -196,6 +213,8 @@
 ;; managing git issues and PRs out of emacs
 (use-package forge)
 
+(setq c-default-style '((c-mode . "linux")))
+
 (use-package lsp-mode
   :ensure t
   :hook  ((c-mode . lsp)
@@ -214,8 +233,7 @@
   (setq lsp-ui-doc-enable nil)
   (setq lsp-ui-doc-delay 0.5)
   (define-key lsp-ui-mode-map [remap xref-find-definitions] #'lsp-ui-peek-find-definitions)
-  (define-key lsp-ui-mode-map [remap xref-find-references] #'lsp-ui-peek-find-references)
-  )
+  (define-key lsp-ui-mode-map [remap xref-find-references] #'lsp-ui-peek-find-references))
 
 (use-package lsp-ivy
   :ensure t
@@ -261,3 +279,41 @@
   :after flycheck
   :config
   (flycheck-pos-tip-mode))
+
+(use-package yasnippet
+  :ensure t
+  :config
+  (setq yas-verbosity 1)
+  (setq yas-wrap-around-region t)
+
+  (with-eval-after-load 'yasnippet
+    (setq yas-snippet-dirs '(yasnippet-snippets-dir)))
+
+  (yas-reload-all)
+  (yas-global-mode))
+
+(use-package yasnippet-snippets
+  :ensure t)
+
+(use-package irony
+  :ensure t
+  :init
+  (add-hook 'c++-mode-hook 'irony-mode)
+  (add-hook 'c-mode-hook 'irony-mode)
+  (add-hook 'objc-mode-hook 'irony-mode)
+  (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options))
+
+
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   '(irony irony-mode yasnippet-snippets yasnippet which-key use-package rainbow-delimiters lsp-ui lsp-treemacs lsp-ivy ivy-rich helpful general forge flycheck-pos-tip evil-collection doom-themes doom-modeline counsel-projectile company-box command-log-mode)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
