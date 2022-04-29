@@ -17,8 +17,8 @@
 
 ;; Put autosave files (ie #foo#) and backup files (ie foo~) in ~/.emacs.d/.
 (custom-set-variables
-  '(auto-save-file-name-transforms '((".*" "~/.emacs.d/autosaves/\\1" t)))
-  '(backup-directory-alist '((".*" . "~/.emacs.d/backups/"))))
+'(auto-save-file-name-transforms '((".*" "~/.emacs.d/autosaves/\\1" t)))
+'(backup-directory-alist '((".*" . "~/.emacs.d/backups/"))))
 
 ;; create the autosave dir if necessary, since emacs won't.
 (make-directory "~/.emacs.d/autosaves/" t)
@@ -28,15 +28,13 @@
  (add-to-list 'default-frame-alist '(alpha . (85 . 80)))
 
 ;; Set up visible bell
-(setq visible-bell t)
+(setq visible-bell nil)
 
 ;; Make ESC quit prompts
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
 
-(set-face-attribute 'default nil :font "Iosevka term" :height 120)
+(set-face-attribute 'default nil :font "Iosevka term" :height 160)
 
-;; (load-theme 'wombat)
-(load-theme 'doom-tokyo-night t)
 
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
 			 ("org" . "https://orgmode.org/elpa/")
@@ -111,7 +109,7 @@
   :init (doom-modeline-mode 1)
   :custom ((doom-modeline-height 15)))
 
-(use-package doom-themes)
+
 
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode))
@@ -178,6 +176,11 @@
   :after evil
   :config
   (evil-collection-init))
+
+
+(use-package doom-themes)
+;; (load-theme 'wombat)
+(load-theme 'doom-tokyo-night t)
 
 (use-package hydra)
 (defhydra hydra-text-scale (:timeout 4)
@@ -302,18 +305,3 @@
   (add-hook 'c-mode-hook 'irony-mode)
   (add-hook 'objc-mode-hook 'irony-mode)
   (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options))
-
-
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   '(irony irony-mode yasnippet-snippets yasnippet which-key use-package rainbow-delimiters lsp-ui lsp-treemacs lsp-ivy ivy-rich helpful general forge flycheck-pos-tip evil-collection doom-themes doom-modeline counsel-projectile company-box command-log-mode)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
