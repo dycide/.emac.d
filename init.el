@@ -17,8 +17,14 @@
 
 ;; Put autosave files (ie #foo#) and backup files (ie foo~) in ~/.emacs.d/.
 (custom-set-variables
-'(auto-save-file-name-transforms '((".*" "~/.emacs.d/autosaves/\\1" t)))
-'(backup-directory-alist '((".*" . "~/.emacs.d/backups/"))))
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(auto-save-file-name-transforms '((".*" "~/.emacs.d/autosaves/\\1" t)))
+ '(backup-directory-alist '((".*" . "~/.emacs.d/backups/")))
+ '(package-selected-packages
+   '(zig-mode yasnippet-snippets which-key use-package rainbow-delimiters lsp-ui lsp-treemacs lsp-ivy ivy-rich irony helpful general forge flycheck-pos-tip evil-collection doom-themes doom-modeline counsel-projectile company-box)))
 
 ;; create the autosave dir if necessary, since emacs won't.
 (make-directory "~/.emacs.d/autosaves/" t)
@@ -49,6 +55,8 @@
 
 (require 'use-package)
 (setq use-package-always-ensure t)
+
+(setq org-directory "~/Dropbox/org/")
 
 ;; linenumbers setup
 (column-number-mode)
@@ -222,6 +230,7 @@
   :ensure t
   :hook  ((c-mode . lsp)
 	  (c++-mode . lsp)
+	  (zig-mode . lsp)
 	  (lsp-mode . lsp-enable-which-key-integration))
   :commands lsp
   :config
@@ -245,6 +254,9 @@
 (use-package lsp-treemacs
   :ensure t
   :commands lsp-treemacs-errors-list)
+
+(use-package zig-mode)
+(setq lsp-zig-zls-executable "~/zls/zls")
 
 ;; company
 (use-package company
@@ -305,3 +317,9 @@
   (add-hook 'c-mode-hook 'irony-mode)
   (add-hook 'objc-mode-hook 'irony-mode)
   (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
